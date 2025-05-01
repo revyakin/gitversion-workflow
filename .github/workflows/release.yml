@@ -1,0 +1,32 @@
+name: Release
+on:
+  push:
+    branches: [main]
+
+permissions:
+    contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # We need to fetch all history. GitVersion can't work with a bare repo.
+
+      - name: Run GitVersion
+        id: gitversion
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/repo" \
+            --env GITHUB_ACTIONS=true                        \
+            --env GITHUB_REF=${{ github.ref }}               \
+            gittools/gitversion:latest /repo                 \
+            | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a v${{ steps.gitversion.outputs.FullSemVer }} -m "Release ${{ steps.gitversion.outputs.FullSemVer }}"
+          git push origin v${{ steps.gitversion.outputs.FullSemVer }}
