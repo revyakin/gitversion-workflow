@@ -24,6 +24,24 @@ jobs:
             gittools/gitversion:latest /repo                 \
             | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_OUTPUT
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build linux amd64 binary
+        run: |
+          dotnet publish                                              \
+            --configuration Release                                   \
+            --output linux-build                                      \
+            -p:NuGetVersion=${{ steps.gitversion.outputs.FullSemVer }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-app-${{ steps.gitversion.outputs.FullSemVer }}
+          path: linux-build/test-app
+
       - name: Create Git Tag
         run: |
           git config user.name "github-actions[bot]"
