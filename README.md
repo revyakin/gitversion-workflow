@@ -1,2 +1,3 @@
-Feature 1
-Feature 2
+Feature 1<br>
+Feature 2<br>
+Fix 1<br>
