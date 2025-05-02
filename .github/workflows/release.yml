@@ -18,11 +18,12 @@ jobs:
       - name: Run GitVersion
         id: gitversion
         run: |
-          docker run --rm -v "${{ github.workspace }}:/repo" \
-            --env GITHUB_ACTIONS=true                        \
-            --env GITHUB_REF=${{ github.ref }}               \
-            gittools/gitversion:latest /repo                 \
-            | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_OUTPUT
+          docker run --rm -v "${{ github.workspace }}:/repository" \
+                  --env GITHUB_ACTIONS=true                        \
+                  --env GITHUB_REF=${{ github.ref }}               \
+                  gittools/gitversion:6.3.0                        \
+                  /repository                                      \
+              | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_OUTPUT
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
